@@ -1,0 +1,3 @@
+databaseChangeLog:
+  - include:
+      file: /db/migrations/001-validate-db-creation.sql

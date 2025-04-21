@@ -1,0 +1,105 @@
+plugins {
+	id 'org.springframework.boot' version '2.6.1'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+	id 'org.openapi.generator' version '5.3.0'
+	id 'com.diffplug.spotless' version '5.0.0'
+}
+
+group = 'com.demo'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir file("${rootDir}/gen/src/main/java/")
+		}
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+	set('springCloudVersion', "2021.0.0")
+	set('testcontainersVersion', "1.16.2")
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'io.swagger:swagger-annotations:1.6.3'
+	implementation 'org.liquibase:liquibase-core'
+	implementation 'mysql:mysql-connector-java:8.0.27'
+	implementation 'org.springframework.cloud:spring-cloud-starter-config'
+	implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'org.testcontainers:mysql:1.16.2'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.testcontainers:testcontainers-bom:${testcontainersVersion}"
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
+openApiGenerate {
+	generatorName = "spring"
+	inputSpec = "$rootDir/openApi/apiSpecification.yml".toString()
+	outputDir = "$rootDir/gen/src/main/java/".toString()
+	generateModelDocumentation = false
+	generateApiDocumentation = false
+	globalProperties = [
+			models: '',
+			apis: '',
+			verbose: "true"
+	]
+	configOptions = [
+			sourceFolder: "/",
+			apiPackage: "com.demo.api",
+			modelPackage: "com.demo.model",
+			bigDecimalAsString: "true",
+			skipDefaultInterface: "true",
+			unhandledException: "true",
+			booleanGetterPrefix: "is",
+			dateLibrary: "java8",
+			interfaceOnly: "true",
+			useOptional: "true",
+			identifierNamingConvention: "snake_case",
+			useBeanValidation: "false"
+	]
+}
+
+clean {
+	delete "$rootDir/gen"
+}
+
+spotless {
+	java {
+		target "**/*.java"
+		googleJavaFormat('1.7').aosp()
+		removeUnusedImports()
+	}
+}
+
+test {
+	useJUnitPlatform()
+}
+
+compileJava.dependsOn tasks.spotlessApply
+spotlessApply.dependsOn tasks.openApiGenerate

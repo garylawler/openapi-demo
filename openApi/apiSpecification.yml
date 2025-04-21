@@ -1,0 +1,219 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Simple API
+  description: A simple Customer API to illustrate OpenAPI concepts and code generation
+
+servers:
+  - url: https://example.io/v1
+
+components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+
+  schemas:
+    Customer:
+      title: Customer
+      type: object
+      required:
+        - username
+      properties:
+        id:
+          type: string
+          example: DFGDF-435-SDF-345
+          description: A UUID key for the customer
+        customer_name:
+          type: string
+          example: Joe Smith
+          description: The customers full name
+        customer_location:
+          type: string
+          example: Ireland
+          description: Where the customer is based
+        external_id:
+          type: integer
+          example: 3783457348
+          description: a customer reference held by an external system
+    Error:
+      title: Error
+      type: object
+      properties:
+        code:
+          type: string
+          example: id.not.found
+          description: a unique code identifying the error type
+        description:
+          type: string
+          example: ID not found
+          description: a plain-language description of the root issue
+
+security:
+  - BasicAuth: []
+
+tags:
+  - name: Customers
+    description: CRUD operations on Customer data
+
+paths:
+  /customers:
+    get:
+      tags:
+         - Customers
+      description: Returns a list of customers
+      summary: Returns a list of customers
+      operationId: getCustomersList
+      parameters:
+        - name: limit
+          in: query
+          description: Limits the number of items on a page
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: Specifies the page number of the customers to be displayed
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successfully returned a list of customers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - Customers
+      description: Creates a new customer
+      summary: Creates a new customer
+      operationId: createCustomer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+      responses:
+        '201':
+          description: Successfully created a new customer
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /customers/{id}:
+    put:
+      tags:
+        - Customers
+      description: Update information about an customer
+      summary: Update information about an customer
+      operationId: updateCustomer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully updated customer data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: customer with given username not found
+        '500':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      tags:
+        - Customers
+      description: Obtain information about a specific customer
+      summary: Obtain information about a specific customer
+      operationId: getCustomerById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully returned an customer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: customer with given username not found
+        '500':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - Customers
+      description: Delete customer info
+      summary: Delete customer info
+      operationId: deleteCustomer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully deleted customer
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: customer with given username not found
+        '500':
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
