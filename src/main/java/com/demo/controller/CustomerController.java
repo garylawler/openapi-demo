@@ -23,7 +23,8 @@ public class CustomerController implements CustomersApi {
     }
 
     @Override
-    public ResponseEntity<Customer> getCustomersList(Optional<Integer> limit, Optional<Integer> offset) {
+    public ResponseEntity<Customer> getCustomersList(
+            Optional<Integer> limit, Optional<Integer> offset) {
         return null;
     }
 
